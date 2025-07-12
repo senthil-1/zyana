@@ -1,0 +1,224 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zyana - You Matter Here</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Montserrat&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f8f8f8;
+      color: #333;
+      scroll-behavior: smooth;
+    }
+
+    section {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .hero {
+      background: url('images/download (1).jpeg') center/cover no-repeat;
+    }
+
+    .overlay {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 30px;
+      border-radius: 10px;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 3em;
+      margin-bottom: 10px;
+    }
+
+    .tagline {
+      display: block;
+      font-size: 0.5em;
+      color: #888;
+    }
+
+    .subheading {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background-color: #ff6b81;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      margin: 0 10px;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #e5506b;
+      transform: scale(1.1);
+    }
+
+    .about, .why {
+      flex-direction: row;
+      gap: 30px;
+      align-items: center;
+      justify-content: center;
+      text-align: left;
+    }
+
+    .about img, .why img {
+      max-width: 300px;
+      border-radius: 10px;
+    }
+
+    .features {
+      background-color: #fff;
+    }
+
+    .feature-icons {
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+      margin-top: 20px;
+    }
+
+    .feature-box {
+      text-align: center;
+      padding: 10px;
+      border-radius: 10px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .feature-box:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-box img {
+      width: 100px;
+    }
+
+    .share-content {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 20px;
+    }
+
+    .share-content img {
+      width: 200px;
+      transition: transform 0.3s ease;
+    }
+
+    .share-content img:hover {
+      transform: scale(1.05);
+    }
+
+    .upload-section {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    #imageUpload {
+      margin-top: 10px;
+    }
+
+    #previewArea {
+      margin-top: 20px;
+    }
+
+    .preview-image {
+      max-width: 300px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s;
+    }
+
+    .preview-image:hover {
+      transform: scale(1.05);
+    }
+
+    footer {
+      background-color: #222;
+      color: #eee;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .footer-note {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .final-text {
+      font-size: 0.9em;
+      margin: 10px auto;
+      max-width: 600px;
+    }
+  </style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="overlay">
+      <h1 class="logo">ZYANA <span class="tagline">YOU MATTER HERE</span></h1>
+      <h2 class="subheading">READY TO START A NEW CHAPTER?</h2>
+      <div class="hero-buttons">
+        <a href="#" class="btn">SIGN IN</a>
+        <a href="#" class="btn">LOG IN</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- You can keep your other sections like about, features, etc. here -->
+
+  <script>
+    document.querySelectorAll('.btn').forEach(button => {
+      button.addEventListener('mouseenter', () => {
+        button.style.transform = 'scale(1.1)';
+        button.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
+      });
+      button.addEventListener('mouseleave', () => {
+        button.style.transform = 'scale(1)';
+        button.style.boxShadow = 'none';
+      });
+    });
+
+    const imageUpload = document.getElementById('imageUpload');
+    const previewArea = document.getElementById('previewArea');
+
+    if (imageUpload) {
+      imageUpload.addEventListener('change', function () {
+        previewArea.innerHTML = '';
+        const file = this.files[0];
+        if (file && file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.alt = 'Shared image';
+            img.className = 'preview-image';
+            previewArea.appendChild(img);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
+
