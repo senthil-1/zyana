@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Zyana Login / Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #e6ddf5, #d1c4e9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-container {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    .login-container h2 {
+      margin-bottom: 1.5rem;
+      color: #6a5acd;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #6a5acd;
+      color: white;
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 30px;
+      margin-top: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #5a4dcf;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #fff5f8;
+      color: #6a1b9a;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-left: 5px solid #ab47bc;
+      display: none;
+      z-index: 9999;
+    }
+
+    .toast.show {
+      display: block;
+      animation: fadein 0.5s, fadeout 0.5s 3s;
+    }
+
+    @keyframes fadein {
+      from {opacity: 0; right: 0;}
+      to {opacity: 1; right: 20px;}
+    }
+
+    @keyframes fadeout {
+      from {opacity: 1;}
+      to {opacity: 0;}
+    }
+
+    .footer-text {
+      font-size: 0.9rem;
+      color: #777;
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-container">
+    <h2>💜 Zyana Login / Register</h2>
+
+    <select id="authMode">
+      <option value="login">Login</option>
+      <option value="register">Register</option>
+    </select>
+
+    <input type="text" id="username" placeholder="Username (Register only)" style="display: none;" />
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="handleAuth()">Continue</button>
+
+    <p class="footer-text">You are safe with Zyana 💜</p>
+  </div>
+
+  <!-- Toast Popup -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBf6Yr8hkvbOsUEvpNikfLgEFywuhyi8RU",
+      authDomain: "chat-bot-11cb8.firebaseapp.com",
+      projectId: "chat-bot-11cb8",
+      storageBucket: "chat-bot-11cb8.appspot.com",
+      messagingSenderId: "788750386357",
+      appId: "1:788750386357:web:d26886f3fb8174730b2afc",
+      measurementId: "G-HZ07XVHJXQ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const toast = document.getElementById("toast");
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3500);
+    }
+
+    // Auto-switch to Register mode if ?mode=register
+    const urlParams = new URLSearchParams(window.location.search);
+    const modeFromURL = urlParams.get("mode");
+
+    if (modeFromURL === "register") {
+      document.getElementById("authMode").value = "register";
+      document.getElementById("username").style.display = "block";
+    }
+
+    // Toggle username field
+    document.getElementById("authMode").addEventListener("change", function () {
+      document.getElementById("username").style.display = this.value === "register" ? "block" : "none";
+    });
+
+    function handleAuth() {
+      const mode = document.getElementById("authMode").value;
+      const username = document.getElementById("username").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      if (!email || !password || (mode === "register" && !username)) {
+        showToast("⚠️ Please fill in all fields.");
+        return;
+      }
+
+      if (mode === "login") {
+        auth.signInWithEmailAndPassword(email, password)
+          .then(() => {
+            window.location.href = "finalpage.html#about";
+          })
+          .catch(err => {
+            if (["auth/user-not-found", "auth/wrong-password", "auth/invalid-login-credentials"].includes(err.code)) {
+              showToast("⚠️ Incorrect email or password.");
+            } else {
+              showToast("⚠️ Login failed. Please try again.");
+            }
+          });
+      } else {
+        auth.createUserWithEmailAndPassword(email, password)
+          .then((userCred) => {
+            const uid = userCred.user.uid;
+            return db.collection("users").doc(uid).set({
+              username: username,
+              email: email
+            });
+          })
+          .then(() => {
+            showToast("✅ Registered successfully!");
+            setTimeout(() => {
+              window.location.href = "page.html#about";
+            }, 1500);
+          })
+          .catch(err => {
+            if (err.code === "auth/email-already-in-use") {
+              showToast("⚠️ Email already in use.");
+            } else if (err.code === "auth/weak-password") {
+              showToast("⚠️ Password should be at least 6 characters.");
+            } else {
+              showToast("⚠️ Registration failed. Please try again.");
+            }
+          });
+      }
+    }
+  </script>
+</body>
+</html>
