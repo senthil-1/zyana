@@ -3,18 +3,20 @@ import openai
 import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
-import json
+import json, base64
 
-# --- LOAD SECRETS ---
+# --- LOAD FIREBASE FROM BASE64 SECRET ---
 try:
-    firebase_key = json.loads(st.secrets["FIREBASE_KEY"])
-    cred = credentials.Certificate(firebase_key)
+    firebase_key_b64 = st.secrets["FIREBASE_KEY_BASE64"]
+    firebase_key_json = json.loads(base64.b64decode(firebase_key_b64))
+    cred = credentials.Certificate(firebase_key_json)
     if not firebase_admin._apps:
         firebase_admin.initialize_app(cred)
     db = firestore.client()
 except Exception as e:
     st.error(f"Firebase initialization failed: {e}")
 
+# --- LOAD OPENROUTER API KEY ---
 try:
     openai.api_key = st.secrets["OPENROUTER_API_KEY"]
     openai.api_base = "https://openrouter.ai/api/v1"
@@ -23,8 +25,10 @@ except Exception as e:
 
 MODEL = "meta-llama/llama-3-8b-instruct"
 
+# --- PAGE CONFIG ---
 st.set_page_config(page_title="Zyana - AI Companion", page_icon="💜", layout="wide")
 
+# --- SESSION STATE ---
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {
@@ -41,7 +45,7 @@ if "messages" not in st.session_state:
 if "is_processing" not in st.session_state:
     st.session_state.is_processing = False
 
-# --- CSS STYLE ---
+# --- CUSTOM CSS ---
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
@@ -58,9 +62,11 @@ html, body, .stApp { font-family: 'Poppins', sans-serif; background: linear-grad
 </style>
 """, unsafe_allow_html=True)
 
+# --- TITLE ---
 st.title("💜 ZYANA - Your AI Mental Health Companion")
 st.caption("I'm here to support and listen to you like a true friend. If you're in crisis, please seek professional help.")
 
+# --- CHAT DISPLAY ---
 chat_placeholder = st.container()
 with chat_placeholder:
     st.markdown('<div class="chat-container" id="chat-scroll">', unsafe_allow_html=True)
@@ -73,6 +79,7 @@ with chat_placeholder:
             st.markdown(f'<div class="chat-bubble bot"><strong>Zyana:</strong><br>{content}</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
+# --- AUTO SCROLL ---
 st.markdown("""
 <script>
 setTimeout(() => {
@@ -82,6 +89,7 @@ setTimeout(() => {
 </script>
 """, unsafe_allow_html=True)
 
+# --- INPUT BOX ---
 st.markdown('<div class="input-area">', unsafe_allow_html=True)
 st.markdown('<div class="input-wrapper">', unsafe_allow_html=True)
 
@@ -92,6 +100,7 @@ with st.form("chat_form", clear_on_submit=True):
 st.markdown('</div>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
+# --- ENTER TO SEND ---
 st.markdown("""
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -108,6 +117,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 """, unsafe_allow_html=True)
 
+# --- HANDLE CHAT ---
 if submitted and user_input.strip() and not st.session_state.is_processing:
     st.session_state.is_processing = True
     st.session_state.messages.append({"role": "user", "content": user_input})
